@@ -1,0 +1,26 @@
+.program provider
+
+; Repeatedly write 1/0 (on/off) to ISR and push it to the RX Queue
+
+set x, 1
+set y, 0
+loop:
+    mov isr, x
+    push block
+    mov isr, y
+    push block
+    jmp loop
+
+% c-sdk {
+static inline void provider_program_init(PIO pio, uint sm, uint offset) {
+    pio_sm_config c = provider_program_get_default_config(offset);
+
+    // Load our configuration, and jump to the start of the program
+    pio_sm_init(pio, sm, offset, &c);
+}
+
+static inline void provider_program_start(PIO pio, uint sm) {
+        // Set the state machine running
+        pio_sm_set_enabled(pio, sm, true);
+}
+%}
