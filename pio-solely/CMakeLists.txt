@@ -11,5 +11,8 @@ target_link_libraries(pio_solely PRIVATE
         hardware_dma
         )
 
+pico_enable_stdio_uart(pio_solely 0)
+pico_enable_stdio_usb(pio_solely 1)
+
 pico_add_extra_outputs(pio_solely)
 

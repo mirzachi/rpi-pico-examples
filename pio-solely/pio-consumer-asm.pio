@@ -4,13 +4,18 @@
 ; empty. Write the least significant bit to the OUT pin group.
 
 loop:
-    pull block
-    out pins, 1
+    pull block ; Pull state from TC queue
+    mov isr, osr ; Copy state to isr to be pushed to RX queue
+    push block ; Send state to FIFO to be read by CPU and displayed
+    out pins, 1 ; Forward state to the LED pin
     jmp loop
 
 % c-sdk {
 static inline void consumer_program_init(PIO pio, uint sm, uint offset, uint pin) {
     pio_sm_config c = consumer_program_get_default_config(offset);
+
+    // Clock divider setup (run at 2 kHz)
+    pio_sm_set_clkdiv_int_frac(pio, sm, 50000, 0);
 
     // Map the state machine's OUT pin group to one pin, namely the `pin`
     // parameter to this function.

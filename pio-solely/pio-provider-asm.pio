@@ -1,20 +1,29 @@
 .program provider
 
 ; Repeatedly write 1/0 (on/off) to ISR and push it to the RX Queue
+; Roughly 2 times per second (930/2000)
 
-set x, 1
-set y, 0
-loop:
+.wrap_target
+    set x, 1
     mov isr, x
     push block
-    mov isr, y
+    set x, 30 ; Delay cycles - 1
+loop1:
+    jmp x-- loop1 [30] ; Delay for (x + 1) * 30 cycles = 930 cycles
+    set x, 0
+    mov isr, x
     push block
-    jmp loop
+    set x, 30 ; Delay cycles - 1
+loop2:
+    jmp x-- loop2 [30] ; Delay for (x + 1) * 30 cycles = 930 cycles
+.wrap
 
 % c-sdk {
 static inline void provider_program_init(PIO pio, uint sm, uint offset) {
     pio_sm_config c = provider_program_get_default_config(offset);
 
+    // Clock divider setup (run at 2 kHz)
+    pio_sm_set_clkdiv_int_frac(pio, sm, 50000, 0);
     // Load our configuration, and jump to the start of the program
     pio_sm_init(pio, sm, offset, &c);
 }
