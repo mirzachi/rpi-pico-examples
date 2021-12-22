@@ -25,4 +25,7 @@ add_compile_options(-Wall
 # Add pio examples
 add_subdirectory(pio-solely)
 
+# Add example on how to read a temperature from the onboard sensor
+add_subdirectory(onboard-temp)
+
 
